@@ -6,14 +6,12 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
-    private GameObject mainPanel;
-    private GameObject playPanel;
+    public GameObject mainPanel;
+    public GameObject playPanel;
 
     
     void Start()
     {
-        mainPanel = GameObject.Find("mainPanel");
-        mainPanel = GameObject.Find("playPanel");
     }
 
     public void ExitClicked() {
@@ -36,40 +34,43 @@ public class MainMenuManager : MonoBehaviour
         mainPanel.SetActive(false);
         playPanel.SetActive(true);
         PlayerPrefs.SetString("ControlDevice","BioArmBand");
-        
     }
 
     public void KeyboardPlayClicked() {
         PlayerPrefs.SetString("ControlMechanism","Keyboard");
         SceneManager.LoadScene("MainScene");
     }
+    public void BackClicked() {
+        mainPanel.SetActive(true);
+        playPanel.SetActive(false);
+    }
 
-    void EMGClicked() {
+    public void EMGClicked() {
         PlayerPrefs.SetString("ControlMechanism","EMG");
         SceneManager.LoadScene("MainScene");
     }
 
-    void IMUClicked() {
+    public void IMUClicked() {
         PlayerPrefs.SetString("ControlMechanism","IMU");
         SceneManager.LoadScene("MainScene");
     }
-    void ZClicked() {
+    public void ZClicked() {
         PlayerPrefs.SetString("ControlMechanism","Z");
         SceneManager.LoadScene("MainScene");
     }
-    void EMGIMUClicked() {
+    public void EMGIMUClicked() {
         PlayerPrefs.SetString("ControlMechanism","EMGIMU");
         SceneManager.LoadScene("MainScene");
     }
-    void EMGZClicked() {
+    public void EMGZClicked() {
         PlayerPrefs.SetString("ControlMechanism","EMGZ");
         SceneManager.LoadScene("MainScene");
     }
-    void IMUZClicked() {
+    public void IMUZClicked() {
         PlayerPrefs.SetString("ControlMechanism","IMUZ");
         SceneManager.LoadScene("MainScene");
     }
-    void EMGIMUZClicked() {
+    public void EMGIMUZClicked() {
         PlayerPrefs.SetString("ControlMechanism","EMGIMUZ");
         SceneManager.LoadScene("MainScene");
     }
