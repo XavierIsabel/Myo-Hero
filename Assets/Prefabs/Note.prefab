@@ -297,7 +297,7 @@ GameObject:
   - component: {fileID: 7317399766191637203}
   m_Layer: 0
   m_Name: CircleBack
-  m_TagString: Square
+  m_TagString: CircleBack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -96,7 +96,7 @@ public class GameManager : MonoBehaviour
             //Spawn in note at right time
             if (float.Parse(_notes[x][0]) <= Time.timeSinceLevelLoad) {
                 //Instantiate
-                GameObject _note = Instantiate(_notePrefab, new Vector3(_ringsPositions[int.Parse(_notes[x][1])],5,0), Quaternion.identity);
+                GameObject _note = Instantiate(_notePrefab, new Vector3(_ringsPositions[int.Parse(_notes[x][1])],5,0.01f), Quaternion.identity);
                 _liveNotes.Add(_note);
                 //Set size
                 SizeNote(_note, float.Parse(_notes[x][2]));

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - CircleFront
   - Square
+  - CircleBack
   layers:
   - Default
   - TransparentFX
