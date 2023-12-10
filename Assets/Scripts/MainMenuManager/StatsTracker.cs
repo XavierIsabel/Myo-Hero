@@ -20,13 +20,17 @@ public class StatsTracker : MonoBehaviour
         }
     }
 
-    public void WriteStats(List<float> notes, List<float> notesLengths, List<float> holdsAccuracy, List<float> timingsAccuracy) {
+    public void WriteStats(List<string> notes, List<string> notesLengths, List<float> holdsAccuracy, List<float> timingsAccuracy) {
         Debug.Log("Writing Stats ...");
          DateTime timeStamp = DateTime.Now;
         string datetime = timeStamp.ToString("yyyy-MM-dd\\THH-mm-ss\\Z");
-        string path = "Assets/Resources/Stats_" + datetime + ".txt";
+        string directory = "Assets/Resources/Subject_" + PlayerPrefs.GetString("ID");
+        if (!Directory.Exists(directory)) {
+            Directory.CreateDirectory(directory);
+        }
+        string path = directory + "/Stats_" + PlayerPrefs.GetString("ControlDevice") + "_"+ PlayerPrefs.GetString("ControlMechanism") + "_" + datetime + ".txt";
         if (!System.IO.File.Exists(path)) {
-            StreamWriter writer = new StreamWriter(path, true);
+            StreamWriter writer = new(path, true);
             string _notes = "";
             string _notesLength = "";
             string _holdsAccuracy = "";
@@ -34,12 +38,12 @@ public class StatsTracker : MonoBehaviour
 
             for(int y=0; y<notes.Count; y++) {
                     _notes += notes[y] + " ";
-                    _notesLength += notesLengths[y] + " ";
+                    _notesLength += notesLengths[y][0] + " ";
                     _holdsAccuracy += holdsAccuracy[y] + " ";
                     _timingsAccuracy += timingsAccuracy[y] + " ";
             }
             writer.WriteLine("Notes: " + _notes);
-            writer.WriteLine("notes_lengths: " + _notesLength);
+            writer.WriteLine("Notes_lengths: " + _notesLength);
             writer.WriteLine("Hold_Accuracy_For_Notes: " + _holdsAccuracy);
             writer.WriteLine("Timing_Accuracy_For_Notes: " + _timingsAccuracy);
             writer.Close();

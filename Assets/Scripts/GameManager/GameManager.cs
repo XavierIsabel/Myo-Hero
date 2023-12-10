@@ -19,19 +19,26 @@ public class GameManager : MonoBehaviour
     private int _tempo = 120;
     public GameObject _notePrefab;
     private string[][] _notes;
-    private List<GameObject> _liveNotes = new List<GameObject>();
+    private List<GameObject> _liveNotes = new();
+
+    private List<string> _notesLengthList = new();
+    private List<string> _notesList = new();
     public GameObject _ringPrefab;
     private GameObject[] _rings;
     public float[] _ringsPositions;
-    private Color[] _colors = {new Color(0,0.39f,1), Color.red, Color.yellow, Color.green};
-    private Color[] _pressedColors = {new Color(0,0.23f,1), new Color(0.74f,0,0), new Color(0.82f,0.82f,0), new Color(0,0.74f,0)};
-    public KeyCode[] _keyList = {KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F};
+    private Color[] _colors = {new(0,0.39f,1), Color.red, Color.yellow, Color.green};
+    private Color[] _pressedColors = {new(0,0.23f,1), new(0.74f,0,0), new(0.82f,0.82f,0), new(0,0.74f,0)};
+    public KeyCode[] _keyList = {KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.G};
+    public int[] _classList = {0, 1, 2, 3, 4};
+    public List<float> _holdsScore = new();
+    public List<float> _timingsScore = new();
+
     void Awake()
     {
         _tempo /= 60;
         NoteGenerator();
         GeneratePlayArea();
-        PlayerPrefs.SetString("ControlDevice","Keyboard"); // To REMOVE
+        gameObject.GetComponent<AudioSource>().Play();
     }
 
     // Update is called once per frame
@@ -40,7 +47,7 @@ public class GameManager : MonoBehaviour
         GameGenerator();
         Controller();
         if (_time - Time.timeSinceLevelLoad <= 0) {
-            //WriteStats
+            GameObject.Find("StatsTracker").GetComponent<StatsTracker>().WriteStats(_notesList, _notesLengthList, _holdsScore, _timingsScore);
             SceneManager.LoadScene("MenuScene");
         }
     }
@@ -68,9 +75,7 @@ public class GameManager : MonoBehaviour
                     _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = Color.black;
                 }
             }
-        }
-
-        if(PlayerPrefs.GetString("ControlDevice") == "BioPoint") {
+        } else { //Put BioPoint and BioArmBand in same category. Assumes same number of classes
             for (int i=0;i<_classes;i++) {
                 if (Input.GetKey(_keyList[i])) { //Should be changed to match BioPoint Controls
                     _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = _pressedColors[i];
@@ -88,6 +93,8 @@ public class GameManager : MonoBehaviour
         _notes = new string[_tempNotes.Length][];
         for (int i=0; i<_tempNotes.Length;i++) {
             _notes[i] = _tempNotes[i].Split(':');
+            _notesLengthList.Add(_notes[i][2]);
+            _notesList.Add(_notes[i][1]);
         }
         _time = int.Parse(_notes[_notes.Length - 1][0]) + int.Parse(_notes[_notes.Length - 1][2]) + 10f;
     }
@@ -113,9 +120,9 @@ public class GameManager : MonoBehaviour
     }
 
     void SizeNote(GameObject _note, float _size) {
-        _note.transform.Find("CircleBack").localPosition = new Vector3(0,0.5f * _size, 0);
-        _note.transform.Find("CircleFront").localPosition = new Vector3(0,-0.5f * _size, 0);
-        _note.transform.Find("Square").localScale = new Vector3(1,_size, 1);
+        _note.transform.Find("CircleBack").localPosition = new Vector3(0,0.5f * (_size - 1), 0);
+        _note.transform.Find("CircleFront").localPosition = new Vector3(0,-0.5f * (_size - 1), 0);
+        _note.transform.Find("Square").localScale = new Vector3(1,_size - 1, 1);
     }
     void ColorNote(GameObject _note, int _alley) {
         _note.transform.Find("CircleBack").GetComponent<SpriteRenderer>().color = _colors[_alley];

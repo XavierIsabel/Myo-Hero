@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class MainMenuManager : MonoBehaviour
 {
     public GameObject mainPanel;
     public GameObject playPanel;
+    public InputField _inputField;
+    //private SensorReader _sensorReader;
 
     
     void Start()
     {
+        //_sensorReader = FindObjectOfType<SensorReader>;
+        _inputField = _inputField.GetComponent<InputField>();
     }
 
     public void ExitClicked() {
@@ -28,16 +33,20 @@ public class MainMenuManager : MonoBehaviour
         mainPanel.SetActive(false);
         playPanel.SetActive(true);
         PlayerPrefs.SetString("ControlDevice","BioPoint");
+        PlayerPrefs.SetString("ID", _inputField.text);
     }
 
     public void BioArmBandPlayClicked() {
         mainPanel.SetActive(false);
         playPanel.SetActive(true);
         PlayerPrefs.SetString("ControlDevice","BioArmBand");
+        PlayerPrefs.SetString("ID", _inputField.text);
     }
 
     public void KeyboardPlayClicked() {
-        PlayerPrefs.SetString("ControlMechanism","Keyboard");
+        PlayerPrefs.SetString("ControlDevice","Keyboard");
+        PlayerPrefs.SetString("ControlMechanism","");
+        PlayerPrefs.SetString("ID", _inputField.text);
         SceneManager.LoadScene("GameScene");
     }
     public void BackClicked() {

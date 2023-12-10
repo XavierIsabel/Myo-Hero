@@ -1,0 +1,4 @@
+Notes: 2 0 1 3 2 1 0 
+Notes_lengths: 4 2 1 1 2 3 4 
+Hold_Accuracy_For_Notes: 0.9888751 0.355542 0 0 0.4111027 0.844493 1.033323 
+Timing_Accuracy_For_Notes: 1 0.0002102852 1 0.2336543 0.1999083 0.466975 0.03370786 

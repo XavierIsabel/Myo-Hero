@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class RingObject : MonoBehaviour
 {
@@ -15,7 +16,9 @@ public class RingObject : MonoBehaviour
     private bool _canBeHeld;
     private bool _circ;
     private GameObject _noteCollider;
+    private float _lengthOfNote;
     private KeyCode _key;
+    private int _classification;
     private Text[] _indicators = new Text[4];
     private Text _holdIndicator;
     void Start()
@@ -23,6 +26,7 @@ public class RingObject : MonoBehaviour
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         int idx = Array.IndexOf(_gameManager._ringsPositions, transform.position.x);
         _key = _gameManager._keyList[idx];
+        _classification = _gameManager._classList[idx];
         for (int i=0; i < 4; i++) {
             _indicators[i] = GameObject.Find("Canvas/indicator" + i.ToString()).GetComponent<Text>();
             _indicators[i].transform.localPosition = new Vector3(_gameManager._ringsPositions.Last() * 100 + 300,0,0);
@@ -34,39 +38,30 @@ public class RingObject : MonoBehaviour
     }
     void Update() {
         if (_canBePressed) {
-            if (Input.GetKeyDown(_key)) {
-                //Add sound
-                _canBePressed = false;
-                _timingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
-                if (_timingError <= 0.25f) {
-                    _indicators[3].enabled = true;
-                } else if (_timingError > 0.25 && _timingError <= 0.5) {
-                    // for (int i=0; i < 4; i++) {
-                    //     _indicators[i].enabled = false;
-                    // }
-                    _indicators[2].enabled = true;
-                } else if (_timingError > 0.5 && _timingError <= 0.75) {
-                    // for (int i=0; i < 4; i++) {
-                    //     _indicators[i].enabled = false;
-                    // }
-                    _indicators[1].enabled = true;
-                } else {
-                    // for (int i=0; i < 4; i++) {
-                    //     _indicators[i].enabled = false;
-                    // }
-                    _indicators[0].enabled = true;
+            if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
+                if (Input.GetKeyDown(_key)) {
+                    _canBePressed = false;
+                    _timingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
+                    PrintTimingIndicator(_timingError);
                 }
-                //Write the timing error 
+            } else {
+                // Code up for BioPoint & BioArmBand
             }
         }
         if (_canBeHeld) {
-            if (Input.GetKey(_key)) {
-                //Play charging sound
-                _holdScore += Time.deltaTime;
-                _holdIndicator.text = "HOLD SCORE : " + _holdScore.ToString().Substring(0,3);
-                _holdIndicator.enabled = true;
+            if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
+                if (Input.GetKey(_key)) {
+                    _holdScore += Time.deltaTime;
+                    _holdIndicator.text = "HOLD SCORE : " + _holdScore.ToString().Substring(0,3);
+                    _holdIndicator.enabled = true;
+                }
+            } else {
+                if (true) { // Code up for BioPoint & BioArmBand
+                    _holdScore += Time.deltaTime;
+                    _holdIndicator.text = "HOLD SCORE : " + _holdScore.ToString().Substring(0,3);
+                    _holdIndicator.enabled = true;
+                }
             }
-
         }
         if (_noteCollider != null) {
             if (_noteCollider.transform.position.y <= transform.position.y) {
@@ -83,10 +78,16 @@ public class RingObject : MonoBehaviour
             _noteCollider = other.gameObject;
         }
         if (other.tag == "Square") {
-            _canBeHeld = true;
+            _lengthOfNote = other.gameObject.transform.localScale.x;
+            if (_lengthOfNote != 0) {
+                _canBeHeld = true;
+            }
         }
         if (other.tag == "CircleBack") {
-            _canBeHeld = true;
+            if (_lengthOfNote != 0) {
+                _canBeHeld = true;
+            }
+            _canBePressed = false;
             _noteCollider = other.gameObject;
         }
     }
@@ -94,6 +95,7 @@ public class RingObject : MonoBehaviour
     void OnTriggerExit2D(Collider2D other) {
         if (other.tag == "CircleFront") {
             _canBePressed = false;
+            _gameManager._timingsScore.Add(_timingError);
         }
         if (other.tag == "Square") {
             Destroy(other.gameObject);
@@ -103,10 +105,21 @@ public class RingObject : MonoBehaviour
         }
         if (other.tag == "CircleBack") {
             _canBeHeld = false;
-            _holdIndicator.enabled = false;  
-            //Write the per note held score
+            _holdIndicator.enabled = false;
+            _gameManager._holdsScore.Add(_holdScore / ( _lengthOfNote + 0.5f));
             _holdScore = 0f;
         }
     }
     
+    void PrintTimingIndicator(float _timingError) {
+        if (_timingError <= 0.25f) {
+            _indicators[3].enabled = true;
+        } else if (_timingError > 0.25 && _timingError <= 0.5) {
+            _indicators[2].enabled = true;
+        } else if (_timingError > 0.5 && _timingError <= 0.75) {
+            _indicators[1].enabled = true;
+        } else {
+            _indicators[0].enabled = true;
+        }
+    }
 }
