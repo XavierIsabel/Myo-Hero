@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
 {
     private int _classes = 4;
     private StatsTracker _statstracker;
-    private float _time = 60f;
+    private float _time;
     private int _songs = 0;
     private int x = 0;
     private int _tempo = 120;
@@ -89,6 +89,7 @@ public class GameManager : MonoBehaviour
         for (int i=0; i<_tempNotes.Length;i++) {
             _notes[i] = _tempNotes[i].Split(':');
         }
+        _time = int.Parse(_notes[_notes.Length - 1][0]) + int.Parse(_notes[_notes.Length - 1][2]) + 10f;
     }
 
     void GameGenerator() {
@@ -96,26 +97,19 @@ public class GameManager : MonoBehaviour
             //Spawn in note at right time
             if (float.Parse(_notes[x][0]) <= Time.timeSinceLevelLoad) {
                 //Instantiate
-                GameObject _note = Instantiate(_notePrefab, new Vector3(_ringsPositions[int.Parse(_notes[x][1])],5,0.01f), Quaternion.identity);
+                GameObject _note = Instantiate(_notePrefab, new Vector3(_ringsPositions[int.Parse(_notes[x][1])],5,1f), Quaternion.identity);
                 _liveNotes.Add(_note);
                 //Set size
                 SizeNote(_note, float.Parse(_notes[x][2]));
                 //Set Color
                 int _alley = int.Parse(_notes[x][1]);
                 ColorNote(_note, _alley);
-                //Set Speed
                 x++;
             }
         }
         for (int i=0;i<_liveNotes.Count;i++) {
             _liveNotes[i].transform.Translate(Vector3.down * _tempo * Time.deltaTime);
         }
-        //Check if collision with ring
-        //Save timing for stats
-        //(Take extremity of capsule compared to end of ring)
-        //You know speed so you know perfect timing and actual timing
-        //Once it is out of frame. Remove Instance of note
-
     }
 
     void SizeNote(GameObject _note, float _size) {
