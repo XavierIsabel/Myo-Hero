@@ -24,7 +24,7 @@ public class StatsTracker : MonoBehaviour
         Debug.Log("Writing Stats ...");
          DateTime timeStamp = DateTime.Now;
         string datetime = timeStamp.ToString("yyyy-MM-dd\\THH-mm-ss\\Z");
-        string directory = "Assets/Resources/Subject_" + PlayerPrefs.GetString("ID");
+        string directory = "./Subject_" + PlayerPrefs.GetString("ID");
         if (!Directory.Exists(directory)) {
             Directory.CreateDirectory(directory);
         }

@@ -7,6 +7,7 @@ using Unity.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
@@ -16,7 +17,7 @@ public class GameManager : MonoBehaviour
     private float _time;
     private int _songs = 0;
     private int x = 0;
-    private int _tempo = 120;
+    private int _tempo = 144;
     public GameObject _notePrefab;
     private string[][] _notes;
     private List<GameObject> _liveNotes = new();
@@ -33,6 +34,9 @@ public class GameManager : MonoBehaviour
     public List<float> _holdsScore = new();
     public List<float> _timingsScore = new();
 
+    private Text _scoreText;
+    public int _scoreInt = 0;
+
     void Awake()
     {
         _tempo /= 60;
@@ -46,6 +50,7 @@ public class GameManager : MonoBehaviour
     {
         GameGenerator();
         Controller();
+        _scoreText.text = "Score : " + _scoreInt.ToString();
         if (_time - Time.timeSinceLevelLoad <= 0) {
             GameObject.Find("StatsTracker").GetComponent<StatsTracker>().WriteStats(_notesList, _notesLengthList, _holdsScore, _timingsScore);
             SceneManager.LoadScene("MenuScene");
@@ -64,6 +69,7 @@ public class GameManager : MonoBehaviour
             _ring.transform.Find("Circle").GetComponent<SpriteRenderer>().color = _colors[i];
             _rings[i] = _ring;
         }
+        _scoreText = GameObject.Find("Canvas/ScoreText").GetComponent<Text>();
     }
 
     void Controller() {
@@ -87,7 +93,7 @@ public class GameManager : MonoBehaviour
     }
 
     void NoteGenerator() {
-        String path = "Assets/Resources/song" + UnityEngine.Random.Range(0,_songs).ToString() + ".txt";
+        String path = "./song" + UnityEngine.Random.Range(0,_songs).ToString() + ".txt";
         string fileContents = File.ReadAllText(path);
         string[] _tempNotes = fileContents.Split('\n');
         _notes = new string[_tempNotes.Length][];
