@@ -71,6 +71,9 @@ public class GameManager : MonoBehaviour
         }
         // Check if game has ended and end game
         if (_time - Time.timeSinceLevelLoad <= 0) {
+            Debug.Log(_holdsScore.Count);
+            Debug.Log(_inTimingsScore.Count);
+            Debug.Log(_outTimingsScore.Count);
             GameObject.Find("StatsTracker").GetComponent<StatsTracker>().WriteStats(_notesList,
                                                                                     _notesLengthList,
                                                                                     _holdsScore,
@@ -147,7 +150,7 @@ public class GameManager : MonoBehaviour
             SizeNColorNote(_noteObject, float.Parse(_noteLength), int.Parse(_note));
         }
         // Set time according to length of song
-        _time = int.Parse(_notes[^1][0]) + int.Parse(_notes[^1][2]) + 10f;
+        _time = (int.Parse(_notes[^1][0]) + int.Parse(_notes[^1][2]) + 10f) / _tempo;
     }
 
     void SizeNColorNote(GameObject _note, float _size, int _alley) {
