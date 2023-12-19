@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using Unity.Collections;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -41,10 +42,11 @@ public class GameManager : MonoBehaviour
     public List<float> _holdsScore = new(); // List of hold scores
     public List<float> _inTimingsScore = new(); // List of IN timings scores
     public List<float> _outTimingsScore = new(); // List of OUT timings scores
-
+    public List<int> _classifications = new(); // List of classifications made
+    public List<float> _timestamps = new(); // List of classifications made
+    private int _classification = -1;
     private Text _scoreText; // Score Text component
     public int _scoreInt = 0; // Score value
-
     void Awake()
     {
         // Generate Play Area components like rings
@@ -71,14 +73,13 @@ public class GameManager : MonoBehaviour
         }
         // Check if game has ended and end game
         if (_time - Time.timeSinceLevelLoad <= 0) {
-            Debug.Log(_holdsScore.Count);
-            Debug.Log(_inTimingsScore.Count);
-            Debug.Log(_outTimingsScore.Count);
             GameObject.Find("StatsTracker").GetComponent<StatsTracker>().WriteStats(_notesList,
                                                                                     _notesLengthList,
                                                                                     _holdsScore,
                                                                                     _inTimingsScore,
-                                                                                    _outTimingsScore);
+                                                                                    _outTimingsScore,
+                                                                                    _classifications,
+                                                                                    _timestamps);
             SceneManager.LoadScene("MenuScene");
         }
     }
@@ -109,19 +110,30 @@ public class GameManager : MonoBehaviour
         if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
             for (int i=0;i<_classes;i++) {
                 if (Input.GetKey(_keyList[i])) {
-                    _rings[i].transform.Find("Circle").GetComponent<SpriteRenderer>().color = _pressedColors[i];
+                    _classification = i;
+                    _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = _pressedColors[i];
                 } else {
-                    _rings[i].transform.Find("Circle").GetComponent<SpriteRenderer>().color = _colors[i];
+                    _classification = -1;
+                    _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = Color.black;
                 }
             }
+            // Add classification to stats
+            _classifications.Add(_classification);
+            _timestamps.Add(Time.time);
+
         } else { //Put BioPoint and BioArmBand in same category. Assumes same number of classes
             for (int i=0;i<_classes;i++) {
                 if (Input.GetKey(_keyList[i])) { //Should be changed to match BioPoint Controls
-                    _rings[i].transform.Find("Circle").GetComponent<SpriteRenderer>().color = _pressedColors[i];
+                    _classification = i;
+                    _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = _pressedColors[i];
                 } else {
-                    _rings[i].transform.Find("Circle").GetComponent<SpriteRenderer>().color = _colors[i];
+                    _classification = -1;
+                    _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = Color.black;
                 }
             }
+            // Add classification to stats
+            _classifications.Add(_classification);
+            _timestamps.Add(Time.time);
         }
     }
 

@@ -160,6 +160,7 @@ MonoBehaviour:
   _holdsScore: []
   _inTimingsScore: []
   _outTimingsScore: []
+  _classifications: 
   _scoreInt: 0
 --- !u!4 &191816235
 Transform:

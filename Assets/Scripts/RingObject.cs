@@ -44,13 +44,16 @@ public class RingObject : MonoBehaviour
         if (_canBePressed) {
             if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
                 if (Input.GetKeyDown(_key)) {
+                    gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = Color.white;
                     _canBePressed = false;
                     _inTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
                     PrintTimingIndicator(_inTimingError);
+
                 }
             } else {
                 if (true) {
                     // Code up for BioPoint & BioArmBand
+                    gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = Color.white;
                     _canBePressed = false;
                     _inTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
                     PrintTimingIndicator(_inTimingError);
@@ -77,6 +80,7 @@ public class RingObject : MonoBehaviour
         if (_canBeReleased) {
             if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
                 if (Input.GetKeyUp(_key)) {
+                    gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = Color.white;
                     _canBeReleased = false;
                     _outTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
                     PrintTimingIndicator(_outTimingError);
@@ -84,6 +88,7 @@ public class RingObject : MonoBehaviour
             } else {
                 if (true) {
                     // Code up for BioPoint & BioArmBand
+                    gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = Color.white;
                     _canBeReleased = false;
                     _inTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
                     PrintTimingIndicator(_inTimingError);
@@ -120,6 +125,7 @@ public class RingObject : MonoBehaviour
     void OnTriggerExit2D(Collider2D other) {
         if (other.CompareTag("CircleFront")) {
             _canBePressed = false;
+            gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = new Color(0,0,0,0);
             // If ring has never been pressed
             if (_inTimingError == -1f) {
                 // Activate X indicator
@@ -147,6 +153,7 @@ public class RingObject : MonoBehaviour
             _holdIndicator.enabled = false;
         }
         if (other.CompareTag("CircleBack")) {
+            gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = new Color(0,0,0,0);
             // This if checks the end of current long note
             _canBeReleased = false;
             // If ring has never been released
