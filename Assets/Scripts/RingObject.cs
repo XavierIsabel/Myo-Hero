@@ -11,7 +11,7 @@ public class RingObject : MonoBehaviour
 {
     private GameManager _gameManager; // GameManager Gameobject
     private float _inTimingError = -1f; //1 is biggest error, 0 is perfect (-1 is never pressed)
-    private float _outTimingError = 1f; //1 is biggest error, 0 is perfect (-1 is never released)
+    private float _outTimingError = -1f; //1 is biggest error, 0 is perfect (-1 is never released)
     private float _holdScore = 0f; // Score for holding note
     private bool _canBePressed;
     private bool _canBeReleased;

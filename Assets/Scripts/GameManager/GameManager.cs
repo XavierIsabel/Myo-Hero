@@ -107,13 +107,13 @@ public class GameManager : MonoBehaviour
     }
 
     void Controller() {
+        _classification = -1;
         if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
             for (int i=0;i<_classes;i++) {
                 if (Input.GetKey(_keyList[i])) {
                     _classification = i;
                     _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = _pressedColors[i];
                 } else {
-                    _classification = -1;
                     _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = Color.black;
                 }
             }
@@ -127,7 +127,6 @@ public class GameManager : MonoBehaviour
                     _classification = i;
                     _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = _pressedColors[i];
                 } else {
-                    _classification = -1;
                     _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = Color.black;
                 }
             }
