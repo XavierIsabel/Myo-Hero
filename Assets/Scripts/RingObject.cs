@@ -112,6 +112,7 @@ public class RingObject : MonoBehaviour
                     _outTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
                     StartCoroutine(ShowTimingIndicatorCoroutine(_outTimingError));
                 }
+                _p_classification = _reader.readVal;
             }
         }
         if (_noteCollider != null) {
@@ -119,7 +120,6 @@ public class RingObject : MonoBehaviour
                 Destroy(_noteCollider);
             }
         }
-        _p_classification = _reader.readVal;
     }
     void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("CircleFront")) {
