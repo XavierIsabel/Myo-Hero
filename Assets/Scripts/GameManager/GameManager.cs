@@ -13,7 +13,8 @@ using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
-    private int _classes = 4; // Number of classes
+    private int _classes = 5; // Number of classes
+    private RectTransform _g_indicator;
     private float _time; // Time of song
     private int _songs = 0; // Number of .txt files we have (Should disappear)
     private int _tempo = 144 / 60; // Tempo of song (to fix)
@@ -26,19 +27,21 @@ public class GameManager : MonoBehaviour
     public GameObject _ringPrefab; // Ring Prefab
     private GameObject[] _rings; // Array of all ring objects
     public float[] _ringsPositions; // Array of all ring objects positions
-    private Color[] _colors = { new(0,0.39f,1),
+    private readonly Color[] _colors = { new(0,0.39f,1),
                                 Color.red,
                                 Color.yellow,
-                                Color.green}; // Colors of all possible rings
-    private Color[] _pressedColors = {  new(0,0.23f,1),
+                                Color.green,
+                                Color.white}; // Colors of all possible rings
+    private readonly Color[] _pressedColors = {  new(0,0.23f,1),
                                         new(0.74f,0,0),
                                         new(0.82f,0.82f,0),
-                                        new(0,0.74f,0)}; // Colors of all possible pressed rings
-    public KeyCode[] _keyList = {   KeyCode.A,
-                                    KeyCode.S,
-                                    KeyCode.D,
-                                    KeyCode.F,
-                                    KeyCode.G}; // All Keys
+                                        new(0,0.74f,0),
+                                        Color.grey}; // Colors of all possible pressed rings
+    public readonly KeyCode[] _keyList = {  KeyCode.Space,
+                                            KeyCode.H,
+                                            KeyCode.J,
+                                            KeyCode.K,
+                                            KeyCode.L}; // All Keys
     public List<float> _holdsScore = new(); // List of hold scores
     public List<float> _inTimingsScore = new(); // List of IN timings scores
     public List<float> _outTimingsScore = new(); // List of OUT timings scores
@@ -47,8 +50,13 @@ public class GameManager : MonoBehaviour
     private int _classification = -1;
     private Text _scoreText; // Score Text component
     public int _scoreInt = 0; // Score value
+
+    BioPointReader _reader;
     void Awake()
     {
+        if (PlayerPrefs.GetString("ControlDevice") != "Keyboard") {
+            _reader = GameObject.Find("BioPointReader").GetComponent<BioPointReader>();
+        }
         // Generate Play Area components like rings
         GeneratePlayArea();
         // Generate all notes of song in the game
@@ -97,9 +105,15 @@ public class GameManager : MonoBehaviour
             if (i == 0) {_ringPosition += -0.75f * (_classes - 1);}
             else {_ringPosition += 1.5f;}
             _ringsPositions[i] = _ringPosition;
-            GameObject _ring = Instantiate (_ringPrefab, new Vector3(_ringPosition,-4, 0), Quaternion.identity);
+            GameObject _ring = Instantiate (_ringPrefab, new Vector3(_ringPosition,-3, 0), Quaternion.identity);
             _ring.transform.Find("Circle").GetComponent<SpriteRenderer>().color = _colors[i];
             _rings[i] = _ring;
+                _g_indicator = GameObject.Find("Canvas/G (" + i.ToString() + ")").GetComponent<RectTransform>();
+            if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
+                Destroy(_g_indicator.gameObject);
+            } else {
+                _g_indicator.anchoredPosition3D = new Vector3(_ringPosition*110,-400, 0);
+            }
         }
         // Get Score component and start song
         _scoreText = GameObject.Find("Canvas/ScoreText").GetComponent<Text>();
@@ -109,7 +123,7 @@ public class GameManager : MonoBehaviour
     void Controller() {
         _classification = -1;
         if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
-            for (int i=0;i<_classes;i++) {
+            for (int i=0;i<_classes;++i) {
                 if (Input.GetKey(_keyList[i])) {
                     _classification = i;
                     _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = _pressedColors[i];
@@ -123,7 +137,7 @@ public class GameManager : MonoBehaviour
 
         } else { //Put BioPoint and BioArmBand in same category. Assumes same number of classes
             for (int i=0;i<_classes;i++) {
-                if (Input.GetKey(_keyList[i])) { //Should be changed to match BioPoint Controls
+                if (_reader.readVal == i.ToString()) { //Should be changed to match BioPoint Controls
                     _classification = i;
                     _rings[i].transform.Find("Circle (1)").GetComponent<SpriteRenderer>().color = _pressedColors[i];
                 } else {
@@ -153,7 +167,7 @@ public class GameManager : MonoBehaviour
             //Instantiate notes
             GameObject _noteObject = Instantiate(   _notePrefab, 
                                                     new Vector3(_ringsPositions[int.Parse(_note)], //Align with good ring
-                                                                int.Parse(_noteTime) + 5, //Give 5 seconds for the song to start
+                                                                int.Parse(_noteTime) + 10, //Give 5 seconds for the song to start
                                                                 1f), //Layer of collision
                                                     Quaternion.identity);
             _notesGameobjects.Add(_noteObject);
@@ -161,7 +175,7 @@ public class GameManager : MonoBehaviour
             SizeNColorNote(_noteObject, float.Parse(_noteLength), int.Parse(_note));
         }
         // Set time according to length of song
-        _time = (int.Parse(_notes[^1][0]) + int.Parse(_notes[^1][2]) + 10f) / _tempo;
+        _time = (int.Parse(_notes[^1][0]) + int.Parse(_notes[^1][2]) + 15f) / _tempo;
     }
 
     void SizeNColorNote(GameObject _note, float _size, int _alley) {
@@ -178,15 +192,17 @@ public class GameManager : MonoBehaviour
             Destroy(_noteEndS.gameObject);
         } else {
             // This code changes the size of the note
-            _noteEnd.localPosition = new Vector3(0,0.5f * (_size - 1), 0);
             _noteMid.localScale = new Vector3(0.5f,_size - 1, 1);
-            _noteEndS.localPosition = new Vector3(0,0.5f * (_size - 1), -0.1f);
             _noteMidS.localScale = new Vector3(0.25f,_size - 1, 1);
+            _noteMid.localPosition = new Vector3(0,0.5f * (_size - 1f), 0);
+            _noteMidS.localPosition = new Vector3(0,0.5f * (_size - 1f), -0.1f);
+            _noteEnd.localPosition = new Vector3(0,_size - 1f, 0);
+            _noteEndS.localPosition = new Vector3(0,_size - 1f, -0.1f);
             _noteEnd.GetComponent<SpriteRenderer>().color = _colors[_alley];
             _noteMid.GetComponent<SpriteRenderer>().color = _colors[_alley];
         }
-        _noteFront.localPosition = new Vector3(0,-0.5f * (_size - 1), 0);
-        _noteFrontS.localPosition = new Vector3(0,-0.5f * (_size - 1), -0.1f);
+        _noteFront.localPosition = new Vector3(0,0, 0);
+        _noteFrontS.localPosition = new Vector3(0,0, -0.1f);
         _noteFront.GetComponent<SpriteRenderer>().color = _colors[_alley];
     }
 }

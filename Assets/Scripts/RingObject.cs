@@ -22,14 +22,19 @@ public class RingObject : MonoBehaviour
     private Text[] _indicators = new Text[5]; // Text indicators
     private Text _holdIndicator;
     private float _startPosition = 0f;
+    BioPointReader _reader;
+    private string _p_classification = "-1";
     void Start()
     {
+        if (PlayerPrefs.GetString("ControlDevice") != "Keyboard") {
+            _reader = GameObject.Find("BioPointReader").GetComponent<BioPointReader>();
+        }
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         // Get idx of ring
         int idx = Array.IndexOf(_gameManager._ringsPositions, transform.position.x);
         // Set for different game
         _key = _gameManager._keyList[idx];
-        _classification = idx + 1;
+        _classification = idx;
         // Set all indicators
         for (int i=0; i < _indicators.Length; i++) {
             _indicators[i] = GameObject.Find("Canvas/indicator" + i.ToString()).GetComponent<Text>();
@@ -44,20 +49,27 @@ public class RingObject : MonoBehaviour
         if (_canBePressed) {
             if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
                 if (Input.GetKeyDown(_key)) {
-                    gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = Color.white;
+                    StartCoroutine(ChangeColorCoroutine());
                     _canBePressed = false;
                     _inTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
-                    PrintTimingIndicator(_inTimingError);
+                    StartCoroutine(ShowTimingIndicatorCoroutine(_inTimingError));
 
                 }
             } else {
-                if (true) {
+                if (_classification.ToString() == "1" && _reader.readVal == _classification.ToString()) //Neutral Position
+                {
                     // Code up for BioPoint & BioArmBand
-                    gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = Color.white;
+                    StartCoroutine(ChangeColorCoroutine());
+                    _canBePressed = false;
+                    StartCoroutine(ShowTimingIndicatorCoroutine(0f));
+                }
+                else if (_reader.readVal == _classification.ToString() && _p_classification != _classification.ToString()) {
+                    // Code up for BioPoint & BioArmBand
+                    StartCoroutine(ChangeColorCoroutine());
                     _canBePressed = false;
                     _inTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
-                    PrintTimingIndicator(_inTimingError);
-                }
+                    StartCoroutine(ShowTimingIndicatorCoroutine(_inTimingError));
+                } else {return;}
             }
         }
         if (_canBeHeld) {
@@ -68,7 +80,7 @@ public class RingObject : MonoBehaviour
                     _holdIndicator.enabled = true;
                 }
             } else {
-                if (true) { // Code up for BioPoint & BioArmBand
+                if (_reader.readVal == _classification.ToString()) { // Code up for BioPoint & BioArmBand
                     _holdScore += Time.deltaTime;
                     _holdIndicator.text = "HOLD SCORE : " + _holdScore.ToString()[..3];
                     _holdIndicator.enabled = true;
@@ -80,18 +92,25 @@ public class RingObject : MonoBehaviour
         if (_canBeReleased) {
             if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
                 if (Input.GetKeyUp(_key)) {
-                    gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = Color.white;
+                    StartCoroutine(ChangeColorCoroutine());
                     _canBeReleased = false;
                     _outTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
-                    PrintTimingIndicator(_outTimingError);
+                    StartCoroutine(ShowTimingIndicatorCoroutine(_outTimingError));
                 }
             } else {
-                if (true) {
+                if (_classification.ToString() == "1" && _reader.readVal == _classification.ToString()) //Neutral Position
+                {
                     // Code up for BioPoint & BioArmBand
-                    gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = Color.white;
+                    StartCoroutine(ChangeColorCoroutine());
                     _canBeReleased = false;
-                    _inTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
-                    PrintTimingIndicator(_inTimingError);
+                    StartCoroutine(ShowTimingIndicatorCoroutine(0f));
+                }
+                else if (_reader.readVal != _classification.ToString() && _p_classification == _classification.ToString()) {
+                    // Code up for BioPoint & BioArmBand
+                    StartCoroutine(ChangeColorCoroutine());
+                    _canBeReleased = false;
+                    _outTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
+                    StartCoroutine(ShowTimingIndicatorCoroutine(_outTimingError));
                 }
             }
         }
@@ -100,15 +119,12 @@ public class RingObject : MonoBehaviour
                 Destroy(_noteCollider);
             }
         }
+        _p_classification = _reader.readVal;
     }
     void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("CircleFront")) {
             // Tag is used for single notes and start of long notes
             _canBePressed = true;
-            // Delete remaining indicators from out-timing score
-            for (int i=0; i < _indicators.Length; i++) {
-                _indicators[i].enabled = false;
-            }
             // Set gameObject to calculate in-timing score
             _noteCollider = other.gameObject;
         }
@@ -125,15 +141,10 @@ public class RingObject : MonoBehaviour
     void OnTriggerExit2D(Collider2D other) {
         if (other.CompareTag("CircleFront")) {
             _canBePressed = false;
-            gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = new Color(0,0,0,0);
             // If ring has never been pressed
             if (_inTimingError == -1f) {
                 // Activate X indicator
-                _indicators[0].enabled = true;
-            }
-            // Hide all indicators from in-timing score
-            for (int i=0; i < _indicators.Length; i++) {
-                _indicators[i].enabled = false;
+                StartCoroutine(ShowTimingIndicatorCoroutine(_inTimingError));
             }
             // Check if one time note
             if (other.transform.parent.childCount == 2) {
@@ -153,13 +164,12 @@ public class RingObject : MonoBehaviour
             _holdIndicator.enabled = false;
         }
         if (other.CompareTag("CircleBack")) {
-            gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = new Color(0,0,0,0);
             // This if checks the end of current long note
             _canBeReleased = false;
             // If ring has never been released
             if (_outTimingError == -1f) {
                 // Activate X indicator
-                _indicators[0].enabled = true;
+                StartCoroutine(ShowTimingIndicatorCoroutine(_outTimingError));
             }
             // Calculate hold score for current long note
             float _tempHoldScore = _holdScore / _startPosition;
@@ -176,8 +186,24 @@ public class RingObject : MonoBehaviour
             _startPosition = 0f;
         }
     }
-    
-    void PrintTimingIndicator(float _timingError) {
+
+    IEnumerator ChangeColorCoroutine()
+    {
+        gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = Color.white;
+        // Interpolate between initial color and target color over the specified duration
+        float elapsed_time = 0f;
+        while (elapsed_time < 0.35f)
+        {
+            // Wait for the next frame
+            yield return null;
+            // Update the elapsed time
+            elapsed_time += Time.deltaTime;
+        }
+        // Ensure the final color is exactly the target color
+        gameObject.transform.Find("Circle (2)").GetComponent<SpriteRenderer>().color = new Color(0,0,0,0);
+    }
+    IEnumerator ShowTimingIndicatorCoroutine(float _timingError)
+    {
         if (_timingError >= 0f && _timingError <= 0.15f) {
             _indicators[4].enabled = true;
         } else if (_timingError > 0.15f && _timingError <= 0.3f) {
@@ -189,5 +215,19 @@ public class RingObject : MonoBehaviour
         } else {
             _indicators[0].enabled = true;
         }
+        float elapsed_time = 0f;
+        while (elapsed_time < 0.35f)
+        {
+            // Wait for the next frame
+            yield return null;
+            // Update the elapsed time
+            elapsed_time += Time.deltaTime;
+        }
+        for (int i=0; i < _indicators.Length; i++) {
+                if (_indicators[i].IsActive()) {
+                    _indicators[i].enabled = false;
+
+                }
+            }
     }
 }
