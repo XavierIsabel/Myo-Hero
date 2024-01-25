@@ -6,7 +6,7 @@ def generate_gesture_file(total_time, filename, neutral_duration=2):
 
     while current_time < total_time:
         # Choose a random gesture (1, 2, or 3) and a random duration (1 to 4 seconds)
-        gesture = random.choice([0, 1, 2, 3, 4])
+        gesture = random.choice([0, 1, 2, 3])
         duration = random.randint(1, 4)
 
         # Make sure the total time is not exceeded

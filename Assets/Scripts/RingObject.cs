@@ -123,13 +123,17 @@ public class RingObject : MonoBehaviour
     }
     void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("CircleFront")) {
+            if (other.transform.parent.childCount == 4 && Array.IndexOf(_gameManager._ringsPositions, transform.position.x) == 0) {
+            _canBePressed = false;
+            } else {_canBePressed = true;}
             // Tag is used for single notes and start of long notes
-            _canBePressed = true;
             // Set gameObject to calculate in-timing score
             _noteCollider = other.gameObject;
         }
         if (other.CompareTag("Square")) {
-            _canBeHeld = true;
+            if (other.transform.parent.childCount == 4 && Array.IndexOf(_gameManager._ringsPositions, transform.position.x) != 0) {
+            _canBeHeld = false;
+            } else {_canBeHeld = true;}
         }
         if (other.CompareTag("CircleBack")) {
             _canBeReleased = true;

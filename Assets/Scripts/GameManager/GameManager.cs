@@ -13,7 +13,7 @@ using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
-    private int _classes = 5; // Number of classes
+    private int _classes = 4; // Number of classes
     private RectTransform _g_indicator;
     private float _time; // Time of song
     private int _songs = 0; // Number of .txt files we have (Should disappear)
@@ -178,31 +178,46 @@ public class GameManager : MonoBehaviour
         _time = (int.Parse(_notes[^1][0]) + int.Parse(_notes[^1][2]) + 15f) / _tempo;
     }
 
-    void SizeNColorNote(GameObject _note, float _size, int _alley) {
-        Transform _noteFront = _note.transform.Find("CircleFront");;
-        Transform _noteMid = _note.transform.Find("Square");;
-        Transform _noteEnd = _note.transform.Find("CircleBack");;
-        Transform _noteFrontS = _note.transform.Find("SmallCircleFront");;
-        Transform _noteMidS = _note.transform.Find("SmallSquare");;
-        Transform _noteEndS = _note.transform.Find("SmallCircleBack");;
-        if (_size == 1) {
-            Destroy(_noteMid.gameObject);
+    void SizeNColorNote(GameObject _note,float _size, int _alley) {
+        Transform _noteFront = _note.transform.Find("CircleFront");
+        Transform _noteMid = _note.transform.Find("Square");
+        Transform _noteEnd = _note.transform.Find("CircleBack");
+        Transform _noteFrontS = _note.transform.Find("SmallCircleFront");
+        Transform _noteMidS = _note.transform.Find("SmallSquare");
+        Transform _noteEndS = _note.transform.Find("SmallCircleBack");
+        if (_alley == 0) { // Thats a silence
+            // Rotate full note
             Destroy(_noteEnd.gameObject);
-            Destroy(_noteMidS.gameObject);
             Destroy(_noteEndS.gameObject);
-        } else {
-            // This code changes the size of the note
-            _noteMid.localScale = new Vector3(0.5f,_size - 1, 1);
-            _noteMidS.localScale = new Vector3(0.25f,_size - 1, 1);
-            _noteMid.localPosition = new Vector3(0,0.5f * (_size - 1f), 0);
-            _noteMidS.localPosition = new Vector3(0,0.5f * (_size - 1f), -0.1f);
-            _noteEnd.localPosition = new Vector3(0,_size - 1f, 0);
-            _noteEndS.localPosition = new Vector3(0,_size - 1f, -0.1f);
-            _noteEnd.GetComponent<SpriteRenderer>().color = _colors[_alley];
+            _noteMid.transform.Rotate(0f, 0f, 90f);
+            _noteMidS.transform.Rotate(0f, 0f, 90f);
+            _noteMid.localScale = new Vector3(_size - 0.5f, _ringsPositions[^1] * 2 , 1);
+            _noteMidS.localScale = new Vector3(_size - 1f, (_ringsPositions[^1] * 2) - 0.5f , 1);
+            _noteMid.localPosition = new Vector3(_ringsPositions[^1],0.5f*_size - 1.25f, -0.3f);
+            _noteMidS.localPosition = new Vector3(_ringsPositions[^1],0.5f*_size - 1.25f, -0.4f);
             _noteMid.GetComponent<SpriteRenderer>().color = _colors[_alley];
-        }
+            _noteFront.GetComponent<SpriteRenderer>().color = Color.black;
+
+        } else {
+            if (_size == 1) {
+                Destroy(_noteMid.gameObject);
+                Destroy(_noteEnd.gameObject);
+                Destroy(_noteMidS.gameObject);
+                Destroy(_noteEndS.gameObject);
+            } else {
+                // This code changes the size of the note
+                _noteMid.localScale = new Vector3(0.5f,_size - 1, 1);
+                _noteMidS.localScale = new Vector3(0.25f,_size - 1, 1);
+                _noteMid.localPosition = new Vector3(0,0.5f * (_size - 1f), 0);
+                _noteMidS.localPosition = new Vector3(0,0.5f * (_size - 1f), -0.1f);
+                _noteEnd.localPosition = new Vector3(0,_size - 1f, 0);
+                _noteEndS.localPosition = new Vector3(0,_size - 1f, -0.1f);
+                _noteEnd.GetComponent<SpriteRenderer>().color = _colors[_alley];
+                _noteMid.GetComponent<SpriteRenderer>().color = _colors[_alley];
+            }
         _noteFront.localPosition = new Vector3(0,0, 0);
         _noteFrontS.localPosition = new Vector3(0,0, -0.1f);
         _noteFront.GetComponent<SpriteRenderer>().color = _colors[_alley];
+        }
     }
 }
