@@ -147,8 +147,10 @@ public class RingObject : MonoBehaviour
             _canBePressed = false;
             // If ring has never been pressed
             if (_inTimingError == -1f) {
-                // Activate X indicator
-                StartCoroutine(ShowTimingIndicatorCoroutine(_inTimingError));
+                if (Array.IndexOf(_gameManager._ringsPositions, transform.position.x) != 0) {
+                    // Activate X indicator
+                    StartCoroutine(ShowTimingIndicatorCoroutine(_inTimingError));
+                }
             }
             // Check if one time note
             if (other.transform.parent.childCount == 2) {

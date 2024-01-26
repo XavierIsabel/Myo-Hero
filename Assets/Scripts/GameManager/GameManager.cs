@@ -108,12 +108,12 @@ public class GameManager : MonoBehaviour
             GameObject _ring = Instantiate (_ringPrefab, new Vector3(_ringPosition,-3, 0), Quaternion.identity);
             _ring.transform.Find("Circle").GetComponent<SpriteRenderer>().color = _colors[i];
             _rings[i] = _ring;
-                _g_indicator = GameObject.Find("Canvas/G (" + i.ToString() + ")").GetComponent<RectTransform>();
-            if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
-                Destroy(_g_indicator.gameObject);
-            } else {
-                _g_indicator.anchoredPosition3D = new Vector3(_ringPosition*110,-400, 0);
-            }
+            //     _g_indicator = GameObject.Find("Canvas/G (" + i.ToString() + ")").GetComponent<RectTransform>();
+            // if (PlayerPrefs.GetString("ControlDevice") == "Keyboard") {
+            //     Destroy(_g_indicator.gameObject);
+            // } else {
+            //     _g_indicator.anchoredPosition3D = new Vector3(_ringPosition*110,-400, 0);
+            // }
         }
         // Get Score component and start song
         _scoreText = GameObject.Find("Canvas/ScoreText").GetComponent<Text>();
