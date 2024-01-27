@@ -25,7 +25,7 @@ def scatter_graph( x_values, y_values, x_label, y_label, title):
 
 def main():
     # Replace this file path with the actual path to your .txt file
-    file_path = './Subject_1/Stats_Keyboard__2023-12-18T20-17-44Z.txt'
+    file_path = './Subject_6/Stats_BioPoint_EMG_2024-01-27T10-25-13Z.txt'
 
     # Open the specified .txt file
     with open(file_path, 'r') as file:

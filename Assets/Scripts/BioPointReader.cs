@@ -87,7 +87,7 @@ public class BioPointReader : MonoBehaviour
 
                 string prediction = "";
                 float max_probs = 0f;
-                for (int i =0; i < 5; i++){
+                for (int i =0; i < 4; i++){
                     if (max_probs < float.Parse(splitText[i])){
                         prediction = i.ToString();
                         max_probs = float.Parse(splitText[i]);
@@ -99,8 +99,8 @@ public class BioPointReader : MonoBehaviour
                 readVal = prediction;
 
                     
-                velocity = float.Parse(splitText[5], CultureInfo.InvariantCulture.NumberFormat);
-                timestamp = splitText[6];
+                velocity = float.Parse(splitText[4], CultureInfo.InvariantCulture.NumberFormat);
+                timestamp = splitText[5];
                 
                 
             }

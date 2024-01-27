@@ -28,6 +28,13 @@ public class StatsTracker : MonoBehaviour
         if (!Directory.Exists(directory)) {
             Directory.CreateDirectory(directory);
         }
+        Debug.Log(notes.Count);
+        Debug.Log(notesLengths.Count);
+        Debug.Log(holdsAccuracy.Count);
+        Debug.Log(inTimingsAccuracy.Count);
+        Debug.Log(outTimingsAccuracy.Count);
+        Debug.Log(classifications.Count);
+        Debug.Log(timestamps.Count);
         string path = directory + "/Stats_" + PlayerPrefs.GetString("ControlDevice") + "_"+ PlayerPrefs.GetString("ControlMechanism") + "_" + datetime + ".txt";
         if (!System.IO.File.Exists(path)) {
             StreamWriter writer = new(path, true);

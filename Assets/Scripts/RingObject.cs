@@ -103,6 +103,7 @@ public class RingObject : MonoBehaviour
                     // Code up for BioPoint & BioArmBand
                     StartCoroutine(ChangeColorCoroutine());
                     _canBeReleased = false;
+                    _outTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
                     StartCoroutine(ShowTimingIndicatorCoroutine(0f));
                 }
                 else if (_reader.readVal != _classification.ToString() && _p_classification == _classification.ToString()) {
@@ -160,7 +161,7 @@ public class RingObject : MonoBehaviour
             // Add in-timing-score to list for stats for long notes
             _gameManager._inTimingsScore.Add(_inTimingError);
             // Add in-timing-score to live game score
-            _gameManager._scoreInt += Mathf.RoundToInt((1f - _inTimingError) * 100f);
+            _gameManager._scoreInt += Mathf.RoundToInt((1f + _inTimingError) * 100f);
             // Set in-timing-score value back to default
             _inTimingError = -1f;
         }
@@ -168,6 +169,21 @@ public class RingObject : MonoBehaviour
             _canBeHeld = false;
             //Shut down visual feedback for holding
             _holdIndicator.enabled = false;
+            // Check if space
+            if (other.transform.parent.childCount == 4 && Array.IndexOf(_gameManager._ringsPositions, transform.position.x) == 0) {
+                // Calculate hold score for current long note
+                float _tempHoldScore = _holdScore / _startPosition;
+                // Add out-timing-score to list for stats for current long note
+                _gameManager._outTimingsScore.Add(_outTimingError);
+                // Add hold-score to list for stats for current long note
+                _gameManager._holdsScore.Add(_tempHoldScore);
+                            // Add scores to game live score
+                _gameManager._scoreInt += Mathf.RoundToInt(_tempHoldScore * 100f);
+                _gameManager._scoreInt += Mathf.RoundToInt((1f + _outTimingError) * 100f);
+                _outTimingError = -1f;
+                _holdScore = 0f;
+                _startPosition = 0f;
+            }
         }
         if (other.CompareTag("CircleBack")) {
             // This if checks the end of current long note
@@ -185,7 +201,7 @@ public class RingObject : MonoBehaviour
             _gameManager._holdsScore.Add(_tempHoldScore);
             // Add scores to game live score
             _gameManager._scoreInt += Mathf.RoundToInt(_tempHoldScore * 100f);
-            _gameManager._scoreInt += Mathf.RoundToInt((1f - _outTimingError) * 100f);
+            _gameManager._scoreInt += Mathf.RoundToInt((1f + _outTimingError) * 100f);
             // Set note-specific scores to their default value
             _outTimingError = -1f;
             _holdScore = 0f;
