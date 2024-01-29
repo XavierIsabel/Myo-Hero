@@ -157,7 +157,7 @@ public class RingObject : MonoBehaviour
                 }
             } else {
                 // Add in-timing-score to live game score
-                _gameManager._scoreInt += Mathf.RoundToInt(_inTimingError * 100f);
+                _gameManager._scoreInt += Mathf.RoundToInt((1f - _inTimingError) * 100f);
             }
             // Add in-timing-score to list for stats for long notes
             _gameManager._inTimingsScore.Add(_inTimingError);
@@ -199,7 +199,7 @@ public class RingObject : MonoBehaviour
                 _gameManager._scoreInt += Mathf.RoundToInt((1f + _outTimingError) * 100f);
             } else {
                 // Add in-timing-score to live game score
-                _gameManager._scoreInt += Mathf.RoundToInt(_outTimingError * 100f);
+                _gameManager._scoreInt += Mathf.RoundToInt((1f -_outTimingError) * 100f);
             }
             // Calculate hold score for current long note
             float _tempHoldScore = _holdScore / _startPosition;
