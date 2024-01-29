@@ -56,14 +56,15 @@ public class RingObject : MonoBehaviour
 
                 }
             } else {
-                if (_classification.ToString() == "1" && _reader.readVal == _classification.ToString()) //Neutral Position
-                {
-                    // Code up for BioPoint & BioArmBand
-                    StartCoroutine(ChangeColorCoroutine());
-                    _canBePressed = false;
-                    StartCoroutine(ShowTimingIndicatorCoroutine(0f));
-                }
-                else if (_reader.readVal == _classification.ToString() && _p_classification != _classification.ToString()) {
+                // if (_classification.ToString() == "0" && _reader.readVal == _classification.ToString()) //Neutral Position
+                // {
+                //     Debug.Log("what4");
+                //     // Code up for BioPoint & BioArmBand
+                //     StartCoroutine(ChangeColorCoroutine());
+                //     _canBePressed = false;
+                //     StartCoroutine(ShowTimingIndicatorCoroutine(0f));
+                // }
+                if (_reader.readVal == _classification.ToString() && _p_classification != _classification.ToString()) {
                     // Code up for BioPoint & BioArmBand
                     StartCoroutine(ChangeColorCoroutine());
                     _canBePressed = false;
@@ -98,24 +99,24 @@ public class RingObject : MonoBehaviour
                     StartCoroutine(ShowTimingIndicatorCoroutine(_outTimingError));
                 }
             } else {
-                if (_classification.ToString() == "1" && _reader.readVal == _classification.ToString()) //Neutral Position
-                {
-                    // Code up for BioPoint & BioArmBand
-                    StartCoroutine(ChangeColorCoroutine());
-                    _canBeReleased = false;
-                    _outTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
-                    StartCoroutine(ShowTimingIndicatorCoroutine(0f));
-                }
-                else if (_reader.readVal != _classification.ToString() && _p_classification == _classification.ToString()) {
+                // if (_classification.ToString() == "0" && _reader.readVal == _classification.ToString()) //Neutral Position
+                // {
+                //     // Code up for BioPoint & BioArmBand
+                //     StartCoroutine(ChangeColorCoroutine());
+                //     _canBeReleased = false;
+                //     StartCoroutine(ShowTimingIndicatorCoroutine(0f));
+                // }
+                if (_reader.readVal != _classification.ToString() && _p_classification == _classification.ToString()) {
                     // Code up for BioPoint & BioArmBand
                     StartCoroutine(ChangeColorCoroutine());
                     _canBeReleased = false;
                     _outTimingError = Mathf.Abs(transform.position.y - _noteCollider.transform.position.y);
                     StartCoroutine(ShowTimingIndicatorCoroutine(_outTimingError));
                 }
-                _p_classification = _reader.readVal;
+                else{return;}
             }
         }
+        if (PlayerPrefs.GetString("ControlDevice") != "Keyboard") {_p_classification = _reader.readVal;}
         if (_noteCollider != null) {
             if (_noteCollider.transform.position.y <= -20) {
                 Destroy(_noteCollider);
@@ -151,19 +152,22 @@ public class RingObject : MonoBehaviour
                 if (Array.IndexOf(_gameManager._ringsPositions, transform.position.x) != 0) {
                     // Activate X indicator
                     StartCoroutine(ShowTimingIndicatorCoroutine(_inTimingError));
+                    // Add in-timing-score to live game score
+                    _gameManager._scoreInt += Mathf.RoundToInt((1f + _inTimingError) * 100f);
                 }
+            } else {
+                // Add in-timing-score to live game score
+                _gameManager._scoreInt += Mathf.RoundToInt(_inTimingError * 100f);
             }
+            // Add in-timing-score to list for stats for long notes
+            _gameManager._inTimingsScore.Add(_inTimingError);
+            // Set in-timing-score value back to default
+            _inTimingError = -1f;
             // Check if one time note
             if (other.transform.parent.childCount == 2) {
                 _gameManager._outTimingsScore.Add(_outTimingError);
                 _gameManager._holdsScore.Add(_holdScore);
             }
-            // Add in-timing-score to list for stats for long notes
-            _gameManager._inTimingsScore.Add(_inTimingError);
-            // Add in-timing-score to live game score
-            _gameManager._scoreInt += Mathf.RoundToInt((1f + _inTimingError) * 100f);
-            // Set in-timing-score value back to default
-            _inTimingError = -1f;
         }
         if (other.CompareTag("Square")) {
             _canBeHeld = false;
@@ -179,7 +183,7 @@ public class RingObject : MonoBehaviour
                 _gameManager._holdsScore.Add(_tempHoldScore);
                             // Add scores to game live score
                 _gameManager._scoreInt += Mathf.RoundToInt(_tempHoldScore * 100f);
-                _gameManager._scoreInt += Mathf.RoundToInt((1f + _outTimingError) * 100f);
+                //_gameManager._scoreInt += Mathf.RoundToInt((1f + _outTimingError) * 100f);
                 _outTimingError = -1f;
                 _holdScore = 0f;
                 _startPosition = 0f;
@@ -192,6 +196,10 @@ public class RingObject : MonoBehaviour
             if (_outTimingError == -1f) {
                 // Activate X indicator
                 StartCoroutine(ShowTimingIndicatorCoroutine(_outTimingError));
+                _gameManager._scoreInt += Mathf.RoundToInt((1f + _outTimingError) * 100f);
+            } else {
+                // Add in-timing-score to live game score
+                _gameManager._scoreInt += Mathf.RoundToInt(_outTimingError * 100f);
             }
             // Calculate hold score for current long note
             float _tempHoldScore = _holdScore / _startPosition;
@@ -201,7 +209,6 @@ public class RingObject : MonoBehaviour
             _gameManager._holdsScore.Add(_tempHoldScore);
             // Add scores to game live score
             _gameManager._scoreInt += Mathf.RoundToInt(_tempHoldScore * 100f);
-            _gameManager._scoreInt += Mathf.RoundToInt((1f + _outTimingError) * 100f);
             // Set note-specific scores to their default value
             _outTimingError = -1f;
             _holdScore = 0f;

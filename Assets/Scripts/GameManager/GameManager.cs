@@ -65,7 +65,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(_reader.velocity);
         for (int i=0;i<_notesGameobjects.Count;i++) {
             _notesGameobjects[i].transform.Translate(_tempo * Time.deltaTime * Vector3.down);
         }
